@@ -174,7 +174,7 @@ def main():
         bodyMsg = "test"
         sender = 'noreply@apthai.com'
 
-        attachedFile = ["{}_{}.pdf".format(product_id, unit_no)]
+        attachedFile = ["pdf/{}_{}.pdf".format(product_id, unit_no)]
 
         # Send Email to Customer
         send_email(subject, bodyMsg, sender, receivers, attachedFile)
