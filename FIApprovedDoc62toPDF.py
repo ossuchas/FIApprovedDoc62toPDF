@@ -166,7 +166,7 @@ def main():
         unit_no = df.iat[0, 1]
         transfer_date = df.iat[0, 2]
 
-        print(product_id, unit_no, transfer_date)
+        # print(product_id, unit_no, transfer_date)
         rpt2pdf(product_id, unit_no)
 
         receivers = ['suchat_s@apthai.com']
@@ -177,6 +177,7 @@ def main():
         attachedFile = ["pdf/{}_{}.pdf".format(product_id, unit_no)]
 
         # Send Email to Customer
+        print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
         send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
 

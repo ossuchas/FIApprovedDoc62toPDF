@@ -2,13 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c73bac9-d0be-439f-8d19-a29ef94ccbee" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/pdf/10096_22S18.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pdf/10096_23N17.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pdf/10096_23S16.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pdf/10096_24N16.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pdf/10096_24S08.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FIApprovedDoc62toPDF.py" beforeDir="false" afterPath="$PROJECT_DIR$/FIApprovedDoc62toPDF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf/10096_22S18.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf/10096_23N17.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf/10096_23S16.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf/10096_24N16.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdf/10096_24S08.pdf" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +118,7 @@
       <option name="presentableId" value="Default" />
       <updated>1576490351783</updated>
       <workItem from="1576490353637" duration="1840000" />
-      <workItem from="1576498023781" duration="3311000" />
+      <workItem from="1576498023781" duration="3690000" />
     </task>
     <servers />
   </component>
