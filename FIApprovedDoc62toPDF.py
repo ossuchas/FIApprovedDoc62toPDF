@@ -118,7 +118,9 @@ def getTransferNumber():
 
 
 def rpt2pdf(projectid: str = None, unit_no: str = None):
+
     file_name = 'pdf/{}_{}.pdf'.format(projectid, unit_no)
+    print("##### Generate file {}_{}.pdf #####".format(projectid, unit_no))
     file_full_path = Path(file_name)
     report_url = REPORT_URL
     report_name = 'Report_Name={}'.format(REPORT_NAME)
@@ -166,6 +168,16 @@ def main():
 
         print(product_id, unit_no, transfer_date)
         rpt2pdf(product_id, unit_no)
+
+        receivers = ['suchat_s@apthai.com']
+        subject = "test"
+        bodyMsg = "test"
+        sender = 'noreply@apthai.com'
+
+        attachedFile = ["{}_{}.pdf".format(product_id, unit_no)]
+
+        # Send Email to Customer
+        send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
 
 if __name__ == '__main__':
