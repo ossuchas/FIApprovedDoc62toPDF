@@ -14,7 +14,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from config import REPORT_URL, REPORT_NAME, \
     MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY, \
-    MAIL_SENDER
+    MAIL_SENDER, MAIL_SUBJECT, MAIL_BODY
 
 import pyodbc
 
@@ -102,11 +102,11 @@ def send_email(subject, message, from_email, to_email=None, attachment=None):
 def getTransferNumber():
     strSQL = """
     SELECT  DISTINCT TOP 5 TF.TransferNumber
-    FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)  
-    LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber 
-    WHERE 1=1 
-	AND (TF.NetSalePrice <= 5000000) 
-	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31') 
+    FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
+    LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+    WHERE 1=1
+	AND (TF.NetSalePrice <= 5000000)
+	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
 	ORDER BY TF.TransferNumber
     """
 
@@ -175,9 +175,9 @@ def main():
     for transfer in transfers:
         str_sql = """
         SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove
-        FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)  
-        LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber 
-        WHERE 1=1 
+        FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
+        LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+        WHERE 1=1
         AND TF.TransferNumber = '{}'
         """.format(transfer)
 
@@ -192,8 +192,8 @@ def main():
         rpt2pdf(product_id, unit_no, file_full_path)
 
         receivers = ['suchat_s@apthai.com']
-        subject = "test"
-        bodyMsg = "test"
+        subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
+        bodyMsg = MAIL_BODY
         sender = MAIL_SENDER
 
         attachedFile = [file_full_path]
