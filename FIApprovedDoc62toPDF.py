@@ -202,8 +202,8 @@ def main():
         attachedFile = [file_full_path]
 
         # Send Email to Customer
-        # print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
-        # send_email(subject, bodyMsg, sender, receivers, attachedFile)
+        print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
+        send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
         print("##### Push to MinIO {} #####".format(file_name))
         push2minio(file_name, file_full_path)
