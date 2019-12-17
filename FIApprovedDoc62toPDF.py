@@ -12,11 +12,13 @@ from email.mime.text import MIMEText
 
 import pandas as pd
 from sqlalchemy import create_engine
-from config import REPORT_URL, REPORT_NAME
+from config import REPORT_URL, REPORT_NAME, \
+    MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY
 
 import pyodbc
-import os
 
+from minio import Minio
+from minio.error import ResponseError
 
 class ConnectDB:
     def __init__(self):
@@ -117,12 +119,12 @@ def getTransferNumber():
     return returnVal
 
 
-def rpt2pdf(projectid: str = None, unit_no: str = None):
-    print(REPORT_URL)
+def rpt2pdf(projectid: str = None, unit_no: str = None, file_full_path: str = None):
+    # print(REPORT_URL)
 
-    file_name = 'pdf/{}_{}.pdf'.format(projectid, unit_no)
+    # file_name = 'pdf/{}_{}.pdf'.format(projectid, unit_no)
     print("##### Generate file {}_{}.pdf #####".format(projectid, unit_no))
-    file_full_path = Path(file_name)
+    file_full_path = Path(file_full_path)
     report_url = REPORT_URL
     report_name = 'Report_Name={}'.format(REPORT_NAME)
     userloginid = '&userloginid=2570'
@@ -145,10 +147,30 @@ def rpt2pdf(projectid: str = None, unit_no: str = None):
     file_full_path.write_bytes(response.content)
 
 
+def push2minio(filename: str = None, file_full_path: str = None):
+    minioClient = Minio(MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=None)
+
+    # minioFileName = "{}{}{}".format(hyrf_id_prefix, uuid.uuid1().hex, file_extension)
+    # # minioFileName = "/{}{}{}".format(hyrf_id_prefix, uuid.uuid1().hex, file_extension)
+    # file_full_path_minio = "{}/{}".format(full_path_img2pdf, minioFileName)
+
+    print(filename, file_full_path)
+
+    # full_path_img2pdf = r"static/images/{}".format(pdf_folder)
+
+    # Put file to minIO
+    try:
+        minioClient.fput_object(MINIO_BUCKET_NAME, filename, file_full_path, content_type='application/pdf')
+    except ResponseError as err:
+        return "Error {}".format(err)
+    pass
+
+
 def main():
     transfers = getTransferNumber()
 
-    params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.0.75;Database=db_iconcrm_fusion;uid=iconuser;pwd=P@ssw0rd;'
+    params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.0.75;Database=db_iconcrm_fusion;uid=iconuser;pwd' \
+             '=P@ssw0rd; '
     params = urllib.parse.quote_plus(params)
 
     db = create_engine('mssql+pyodbc:///?odbc_connect=%s' % params, fast_executemany=True)
@@ -168,18 +190,23 @@ def main():
         transfer_date = df.iat[0, 2]
 
         # print(product_id, unit_no, transfer_date)
-        rpt2pdf(product_id, unit_no)
+        file_name = "{}_{}.pdf".format(product_id, unit_no)
+        file_full_path = "pdf/{}".format(file_name)
+        rpt2pdf(product_id, unit_no, file_full_path)
 
         receivers = ['suchat_s@apthai.com']
         subject = "test"
         bodyMsg = "test"
         sender = 'noreply@apthai.com'
 
-        attachedFile = ["pdf/{}_{}.pdf".format(product_id, unit_no)]
+        attachedFile = [file_full_path]
 
         # Send Email to Customer
         # print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
         # send_email(subject, bodyMsg, sender, receivers, attachedFile)
+
+        print("##### Push to MinIO {} #####".format(file_name))
+        push2minio(file_name, file_full_path)
 
 
 if __name__ == '__main__':
