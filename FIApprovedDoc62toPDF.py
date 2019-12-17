@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 import requests
 # import os.path
-from os import path, environ
+from os import path, environ, remove
 import re
 import smtplib
 import urllib
@@ -13,7 +13,8 @@ from email.mime.text import MIMEText
 import pandas as pd
 from sqlalchemy import create_engine
 from config import REPORT_URL, REPORT_NAME, \
-    MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY
+    MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY, \
+    MAIL_SENDER
 
 import pyodbc
 
@@ -149,24 +150,20 @@ def rpt2pdf(projectid: str = None, unit_no: str = None, file_full_path: str = No
 
 def push2minio(filename: str = None, file_full_path: str = None):
     minioClient = Minio(MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=None)
-
-    # minioFileName = "{}{}{}".format(hyrf_id_prefix, uuid.uuid1().hex, file_extension)
-    # # minioFileName = "/{}{}{}".format(hyrf_id_prefix, uuid.uuid1().hex, file_extension)
-    # file_full_path_minio = "{}/{}".format(full_path_img2pdf, minioFileName)
-
-    print(filename, file_full_path)
-
-    # full_path_img2pdf = r"static/images/{}".format(pdf_folder)
-
+    # print(filename, file_full_path)
     # Put file to minIO
     try:
         minioClient.fput_object(MINIO_BUCKET_NAME, filename, file_full_path, content_type='application/pdf')
     except ResponseError as err:
         return "Error {}".format(err)
-    pass
+
+
+def delpdffile(file_full_path: str = None):
+    remove(file_full_path)
 
 
 def main():
+    # GET transfer number list
     transfers = getTransferNumber()
 
     params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.0.75;Database=db_iconcrm_fusion;uid=iconuser;pwd' \
@@ -179,9 +176,9 @@ def main():
         str_sql = """
         SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove
         FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)  
-      LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber 
-      WHERE 1=1 
-      AND TF.TransferNumber = '{}'
+        LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber 
+        WHERE 1=1 
+        AND TF.TransferNumber = '{}'
         """.format(transfer)
 
         df = pd.read_sql(sql=str_sql, con=db)
@@ -197,7 +194,7 @@ def main():
         receivers = ['suchat_s@apthai.com']
         subject = "test"
         bodyMsg = "test"
-        sender = 'noreply@apthai.com'
+        sender = MAIL_SENDER
 
         attachedFile = [file_full_path]
 
@@ -207,6 +204,9 @@ def main():
 
         print("##### Push to MinIO {} #####".format(file_name))
         push2minio(file_name, file_full_path)
+
+        print("##### Delete file {} #####".format(file_name))
+        delpdffile(file_full_path)
 
 
 if __name__ == '__main__':
