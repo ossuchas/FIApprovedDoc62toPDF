@@ -1,7 +1,8 @@
 import logging
 from pathlib import Path
 import requests
-import os.path
+# import os.path
+from os import path, environ
 import re
 import smtplib
 import urllib
@@ -11,11 +12,10 @@ from email.mime.text import MIMEText
 
 import pandas as pd
 from sqlalchemy import create_engine
+from config import REPORT_URL, REPORT_NAME
 
 import pyodbc
-
-REPORT_NAME = "RP_FI_020_62"
-REPORT_URL = "http://192.168.0.97/CRMReportWeb/Forms/WF_ReportViewer.aspx?"
+import os
 
 
 class ConnectDB:
@@ -84,7 +84,7 @@ def send_email(subject, message, from_email, to_email=None, attachment=None):
 
     for f in attachment:
         with open(f, 'rb') as a_file:
-            basename = os.path.basename(f)
+            basename = path.basename(f)
             part = MIMEApplication(a_file.read(), Name=basename)
 
         part['Content-Disposition'] = 'attachment; filename="%s"' % basename
@@ -118,6 +118,7 @@ def getTransferNumber():
 
 
 def rpt2pdf(projectid: str = None, unit_no: str = None):
+    print(REPORT_URL)
 
     file_name = 'pdf/{}_{}.pdf'.format(projectid, unit_no)
     print("##### Generate file {}_{}.pdf #####".format(projectid, unit_no))
@@ -177,8 +178,8 @@ def main():
         attachedFile = ["pdf/{}_{}.pdf".format(product_id, unit_no)]
 
         # Send Email to Customer
-        print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
-        send_email(subject, bodyMsg, sender, receivers, attachedFile)
+        # print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
+        # send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
 
 if __name__ == '__main__':
