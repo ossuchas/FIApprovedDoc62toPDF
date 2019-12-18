@@ -3,14 +3,23 @@ import urllib
 
 DEBUG = True
 REPORT_NAME = "RP_FI_020_62"
-REPORT_URL = "http://192.168.0.97/CRMReportWeb/Forms/WF_ReportViewer.aspx?"
+# URL Test
+# REPORT_URL = "http://192.168.0.97/CRMReportWeb/Forms/WF_ReportViewer.aspx?"
 
-# MINIO Env
-MINIO_ENDPOINT = "192.168.2.29:9400"
-MINIO_ACCESS_KEY = "MD6RUWLB2UL23HWWIQ95"
-MINIO_SECRET_KEY = "z+vz7XsjRsjxAqbH3ntzLNp9gf9GqgwKpnzzWeQf"
+# URL Prod
+REPORT_URL = "http://ap-ir.com/CRMReportWeb/Forms/WF_ReportViewer.aspx?"
+
+# MINIO Dev Env
+# MINIO_ENDPOINT = "192.168.2.29:9400"
+# MINIO_ACCESS_KEY = "MD6RUWLB2UL23HWWIQ95"
+# MINIO_SECRET_KEY = "z+vz7XsjRsjxAqbH3ntzLNp9gf9GqgwKpnzzWeQf"
+# MINIO_BUCKET_NAME = "crmfiapproveddoc"
+
+# MINIO Prod Env
+MINIO_ENDPOINT = "192.168.3.11:9400"
+MINIO_ACCESS_KEY = "RG7LY045BY4EW2Z9O1Z0"
+MINIO_SECRET_KEY = "ZXnvVWe9LcsticSFxJVJzy2imOIWU+oT7TZpIPVA"
 MINIO_BUCKET_NAME = "crmfiapproveddoc"
-# MINIO_BUCKET_NAME = "happyrefundcs"
 
 # Mail Setting
 MAIL_SENDER = "noreply@apthai.com"

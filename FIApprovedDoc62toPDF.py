@@ -21,10 +21,11 @@ import pyodbc
 from minio import Minio
 from minio.error import ResponseError
 
+
 class ConnectDB:
     def __init__(self):
         ''' Constructor for this class. '''
-        self._connection = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=192.168.0.75;Database=db_iconcrm_fusion;uid=iconuser;pwd=P@ssw0rd;')
+        self._connection = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=192.168.2.58;Database=db_iconcrm_fusion;uid=iconuser;pwd=P@ssw0rd;')
         self._cursor = self._connection.cursor()
 
     def query(self, query):
@@ -101,12 +102,13 @@ def send_email(subject, message, from_email, to_email=None, attachment=None):
 
 def getTransferNumber():
     strSQL = """
-    SELECT  DISTINCT TOP 5 TF.TransferNumber
+    SELECT  DISTINCT TOP 1 TF.TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     WHERE 1=1
 	AND (TF.NetSalePrice <= 5000000)
 	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
+	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
 	ORDER BY TF.TransferNumber
     """
 
@@ -121,28 +123,26 @@ def getTransferNumber():
 
 
 def rpt2pdf(projectid: str = None, unit_no: str = None, file_full_path: str = None):
-    # print(REPORT_URL)
-
     # file_name = 'pdf/{}_{}.pdf'.format(projectid, unit_no)
     print("##### Generate file {}_{}.pdf #####".format(projectid, unit_no))
     file_full_path = Path(file_full_path)
     report_url = REPORT_URL
     report_name = 'Report_Name={}'.format(REPORT_NAME)
-    userloginid = '&userloginid=2570'
+    userloginid = '&userloginid=2607'
     projectid = '&ProductID={}'.format(projectid)
     comid = '&CompanyID=A'
     unitid = '&UnitID={}'.format(unit_no)
     start_date = '&StartDate=null'
     end_date = '&EndDate=null'
     print_mode = '&PrintMode='
-    session = '&SessionID=56a8844b-2e12-4cf0-bfe1-466a90a9ecfa'
+    session = '&SessionID=198b9ce1-b364-4a6c-9d4f-06d3e9502ada'
     export = '&IsExport=1'
 
     # concat string
     url = "{}{}{}{}{}{}{}{}{}{}{}".format(report_url, report_name, userloginid,
                                           projectid, comid, unitid, start_date,
                                           end_date, print_mode, session, export)
-
+    print(url)
     session = requests.Session()
     response = session.get(url, stream=True)
     file_full_path.write_bytes(response.content)
@@ -158,6 +158,17 @@ def push2minio(filename: str = None, file_full_path: str = None):
         return "Error {}".format(err)
 
 
+def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str = None, url_file: str = None):
+    strSQL = """
+    INSERT INTO dbo.crm_log_fiapproveddoc
+    ( productid, unitnumber, transfernumber, url_file, createby, createdate, modifyby, modifydate )
+    VALUES(?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
+        """
+    param = (productid, unitnumber, transfernumber, url_file)
+    myConnDB = ConnectDB()
+    myConnDB.exec_sp(strSQL, params=param)
+
+
 def delpdffile(file_full_path: str = None):
     remove(file_full_path)
 
@@ -166,7 +177,7 @@ def main():
     # GET transfer number list
     transfers = getTransferNumber()
 
-    params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.0.75;Database=db_iconcrm_fusion;uid=iconuser;pwd' \
+    params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.2.58;Database=db_iconcrm_fusion;uid=iconuser;pwd' \
              '=P@ssw0rd; '
     params = urllib.parse.quote_plus(params)
 
@@ -191,6 +202,7 @@ def main():
         file_full_path = "pdf/{}".format(file_name)
         rpt2pdf(product_id, unit_no, file_full_path)
 
+        # receivers = ['suchat_s@apthai.com', 'jintana_i@apthai.com', 'wallapa@apthai.com']
         receivers = ['suchat_s@apthai.com']
         subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
         bodyMsg = MAIL_BODY
@@ -207,6 +219,10 @@ def main():
 
         print("##### Delete file {} #####".format(file_name))
         delpdffile(file_full_path)
+
+        print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
+        url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
+        insertlog(product_id, unit_no, transfer, url_file)
 
 
 if __name__ == '__main__':
