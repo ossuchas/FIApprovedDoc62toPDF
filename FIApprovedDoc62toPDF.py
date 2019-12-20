@@ -14,18 +14,21 @@ import pandas as pd
 from sqlalchemy import create_engine
 from config import REPORT_URL, REPORT_NAME, \
     MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY, \
-    MAIL_SENDER, MAIL_SUBJECT, MAIL_BODY
+    MAIL_SENDER, MAIL_SUBJECT, MAIL_BODY, EMAIL_FORMAT
 
 import pyodbc
 
 from minio import Minio
 from minio.error import ResponseError
 
+regex = "^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+
 
 class ConnectDB:
     def __init__(self):
         ''' Constructor for this class. '''
-        self._connection = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=192.168.2.58;Database=db_iconcrm_fusion;uid=iconuser;pwd=P@ssw0rd;')
+        self._connection = pyodbc.connect(
+            'Driver={ODBC Driver 17 for SQL Server};Server=192.168.2.58;Database=db_iconcrm_fusion;uid=iconuser;pwd=P@ssw0rd;')
         self._cursor = self._connection.cursor()
 
     def query(self, query):
@@ -105,10 +108,13 @@ def getTransferNumber():
     SELECT  DISTINCT TOP 1 TF.TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+    LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
     WHERE 1=1
 	AND (TF.NetSalePrice <= 5000000)
 	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
 	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
+	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
+	--AND a.ProductID = '10096'
 	ORDER BY TF.TransferNumber
     """
 
@@ -118,6 +124,28 @@ def getTransferNumber():
 
     for row in result_set:
         returnVal.append(row.TransferNumber)
+
+    return returnVal
+
+
+def getListEmailbyTransferNo(transfernumb: str = None):
+
+    strSQL = """
+    SELECT ISNULL(b.EMail, '-') as Email
+    FROM dbo.ICON_EntForms_TransferOwner a WITH(NOLOCK),
+    dbo.ICON_EntForms_Contacts b WITH(NOLOCK)
+    WHERE a.TransferNumber = '{}' 
+    AND a.IsDelete = 0
+    AND a.ContactID = b.ContactID
+        """.format(transfernumb)
+
+    myConnDB = ConnectDB()
+    result_set = myConnDB.query(strSQL)
+    returnVal = []
+
+    for row in result_set:
+        if validateEmail(row.Email):
+            returnVal.append(row.Email)
 
     return returnVal
 
@@ -142,15 +170,21 @@ def rpt2pdf(projectid: str = None, unit_no: str = None, file_full_path: str = No
     url = "{}{}{}{}{}{}{}{}{}{}{}".format(report_url, report_name, userloginid,
                                           projectid, comid, unitid, start_date,
                                           end_date, print_mode, session, export)
-    print(url)
+    # print(url)
     session = requests.Session()
     response = session.get(url, stream=True)
     file_full_path.write_bytes(response.content)
 
 
+def validateEmail(email):
+    if re.search(regex, email):
+        return True
+    else:
+        return False
+
+
 def push2minio(filename: str = None, file_full_path: str = None):
     minioClient = Minio(MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=None)
-    # print(filename, file_full_path)
     # Put file to minIO
     try:
         minioClient.fput_object(MINIO_BUCKET_NAME, filename, file_full_path, content_type='application/pdf')
@@ -158,13 +192,14 @@ def push2minio(filename: str = None, file_full_path: str = None):
         return "Error {}".format(err)
 
 
-def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str = None, url_file: str = None):
+def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str = None, url_file: str = None,
+              send_mail_stts: str = None):
     strSQL = """
     INSERT INTO dbo.crm_log_fiapproveddoc
-    ( productid, unitnumber, transfernumber, url_file, createby, createdate, modifyby, modifydate )
-    VALUES(?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
+    ( productid, unitnumber, transfernumber, url_file, send_mail_stts, createby, createdate, modifyby, modifydate )
+    VALUES(?, ?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
         """
-    param = (productid, unitnumber, transfernumber, url_file)
+    param = (productid, unitnumber, transfernumber, url_file, send_mail_stts)
     myConnDB = ConnectDB()
     myConnDB.exec_sp(strSQL, params=param)
 
@@ -180,7 +215,6 @@ def main():
     params = 'Driver={ODBC Driver 17 for SQL Server};Server=192.168.2.58;Database=db_iconcrm_fusion;uid=iconuser;pwd' \
              '=P@ssw0rd; '
     params = urllib.parse.quote_plus(params)
-
     db = create_engine('mssql+pyodbc:///?odbc_connect=%s' % params, fast_executemany=True)
 
     for transfer in transfers:
@@ -193,9 +227,10 @@ def main():
         """.format(transfer)
 
         df = pd.read_sql(sql=str_sql, con=db)
-        product_id =df.iat[0, 0]
+        product_id = df.iat[0, 0]
         unit_no = df.iat[0, 1]
         transfer_date = df.iat[0, 2]
+        send_mail_stts = 'F'
 
         # print(product_id, unit_no, transfer_date)
         file_name = "{}_{}.pdf".format(product_id, unit_no)
@@ -203,16 +238,23 @@ def main():
         rpt2pdf(product_id, unit_no, file_full_path)
 
         # receivers = ['suchat_s@apthai.com', 'jintana_i@apthai.com', 'wallapa@apthai.com']
-        receivers = ['suchat_s@apthai.com']
-        subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
-        bodyMsg = MAIL_BODY
-        sender = MAIL_SENDER
+        emaillist = getListEmailbyTransferNo('70045CT9199477')
+        # emaillist = getListEmailbyTransferNo('30002CT9173347')
 
-        attachedFile = [file_full_path]
+        # Check Email valid and sending
+        if emaillist:
+            print(emaillist)
+            send_mail_stts = 'S'
+            receivers = ['suchat_s@apthai.com']
+            subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
+            bodyMsg = MAIL_BODY
+            sender = MAIL_SENDER
 
-        # Send Email to Customer
-        print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
-        send_email(subject, bodyMsg, sender, receivers, attachedFile)
+            attachedFile = [file_full_path]
+
+            # Send Email to Customer
+            print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
+            send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
         print("##### Push to MinIO {} #####".format(file_name))
         push2minio(file_name, file_full_path)
@@ -222,10 +264,8 @@ def main():
 
         print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
         url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
-        insertlog(product_id, unit_no, transfer, url_file)
+        insertlog(product_id, unit_no, transfer, url_file, send_mail_stts)
 
 
 if __name__ == '__main__':
     main()
-
-

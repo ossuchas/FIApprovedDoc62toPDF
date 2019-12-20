@@ -9,6 +9,8 @@ REPORT_NAME = "RP_FI_020_62"
 # URL Prod
 REPORT_URL = "http://ap-ir.com/CRMReportWeb/Forms/WF_ReportViewer.aspx?"
 
+EMAIL_FORMAT = "^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+
 # MINIO Dev Env
 # MINIO_ENDPOINT = "192.168.2.29:9400"
 # MINIO_ACCESS_KEY = "MD6RUWLB2UL23HWWIQ95"
