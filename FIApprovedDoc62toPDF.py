@@ -14,9 +14,10 @@ import pandas as pd
 from sqlalchemy import create_engine
 from config import REPORT_URL, REPORT_NAME, \
     MINIO_ACCESS_KEY, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECRET_KEY, \
-    MAIL_SENDER, MAIL_SUBJECT, MAIL_BODY, EMAIL_FORMAT
+    MAIL_SENDER, MAIL_SUBJECT, MAIL_BODY, EMAIL_FORMAT, BITLY_ACCESS_TOKEN
 
 import pyodbc
+import bitly_api
 
 from minio import Minio
 from minio.error import ResponseError
@@ -193,19 +194,25 @@ def push2minio(filename: str = None, file_full_path: str = None):
 
 
 def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str = None, url_file: str = None,
-              send_mail_stts: str = None):
+              send_mail_stts: str = None, short_url: str = None):
     strSQL = """
     INSERT INTO dbo.crm_log_fiapproveddoc
-    ( productid, unitnumber, transfernumber, url_file, send_mail_stts, createby, createdate, modifyby, modifydate )
-    VALUES(?, ?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
+    ( productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts, createby, createdate, modifyby, modifydate )
+    VALUES(?, ?, ?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
         """
-    param = (productid, unitnumber, transfernumber, url_file, send_mail_stts)
+    param = (productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts)
     myConnDB = ConnectDB()
     myConnDB.exec_sp(strSQL, params=param)
 
 
 def delpdffile(file_full_path: str = None):
     remove(file_full_path)
+
+
+def generate_shorturl(long_url: str = None, ACCESS_TOKEN: str = None) -> str:
+    b = bitly_api.Connection(access_token=ACCESS_TOKEN)
+    response = b.shorten(long_url)
+    return response['url']
 
 
 def main():
@@ -238,7 +245,7 @@ def main():
         rpt2pdf(product_id, unit_no, file_full_path)
 
         # receivers = ['suchat_s@apthai.com', 'jintana_i@apthai.com', 'wallapa@apthai.com']
-        emaillist = getListEmailbyTransferNo('70045CT9199477')
+        emaillist = getListEmailbyTransferNo(transfer)
         # emaillist = getListEmailbyTransferNo('30002CT9173347')
 
         # Check Email valid and sending
@@ -262,9 +269,14 @@ def main():
         print("##### Delete file {} #####".format(file_name))
         delpdffile(file_full_path)
 
-        print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
         url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
-        insertlog(product_id, unit_no, transfer, url_file, send_mail_stts)
+
+        print("##### Generate Shorten URL {} #####".format(file_name))
+        short_url = generate_shorturl(long_url=url_file, ACCESS_TOKEN=BITLY_ACCESS_TOKEN)
+        print(short_url)
+
+        print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
+        insertlog(product_id, unit_no, transfer, url_file, send_mail_stts, short_url)
 
 
 if __name__ == '__main__':

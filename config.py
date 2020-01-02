@@ -34,3 +34,6 @@ MAIL_BODY = """<p style="font-family:AP;">เรียนลูกค้า<br>&
     ดาวน์โหลดประกาศได้ที่นี่</a></p><br /><br  /> \
     Best regards,<br /><img src="http://www.apintranet.com/static/media/logo.d9fe4116.png"\
     alt="ap" width="5%" ><br />AP (Thailand) PCL. and affiliated companies<br /></p>"""
+
+# Bitly shorten url
+BITLY_ACCESS_TOKEN = "43280e02fc4a96a4eafa456cc054b49895db00f3"
