@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c73bac9-d0be-439f-8d19-a29ef94ccbee" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BatchFIApprvSendSMS.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FIApprovedDoc62toPDF.py" beforeDir="false" afterPath="$PROJECT_DIR$/FIApprovedDoc62toPDF.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
@@ -69,7 +71,29 @@
       <recent name="C:\Users\suchat_s\Dropbox\AP\Project\96_Python\1Develop\1_3Technical Document\FIApprovedDoc62toPDF" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.BatchFIApprvSendSMS">
+    <configuration name="BatchFIApprvSendSMS" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="FIApprovedDoc62toPDF" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/BatchFIApprvSendSMS.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="FIApprovedDoc62toPDF" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="FIApprovedDoc62toPDF" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -94,6 +118,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.BatchFIApprvSendSMS" />
         <item itemvalue="Python.FIApprovedDoc62toPDF" />
       </list>
     </recent_temporary>
@@ -132,7 +157,8 @@
       <workItem from="1576804930279" duration="3824000" />
       <workItem from="1576878846855" duration="609000" />
       <workItem from="1577950742103" duration="1659000" />
-      <workItem from="1578001020147" duration="980000" />
+      <workItem from="1578001020147" duration="1757000" />
+      <workItem from="1578011212614" duration="3692000" />
     </task>
     <servers />
   </component>
@@ -151,26 +177,26 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="233" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.728@0.0.1366.728" timestamp="1576500080592" />
-    <state x="463" y="118" key="FileChooserDialogImpl" timestamp="1576499972556">
+    <state x="463" y="118" key="FileChooserDialogImpl" timestamp="1578011242385">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="463" y="118" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1576499972556" />
-    <state width="1323" height="176" key="GridCell.Tab.0.bottom" timestamp="1576813066862">
+    <state x="463" y="118" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1578011242385" />
+    <state width="1323" height="176" key="GridCell.Tab.0.bottom" timestamp="1578015000197">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="176" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1576813066862" />
-    <state width="1323" height="176" key="GridCell.Tab.0.center" timestamp="1576813066862">
+    <state width="1323" height="176" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1578015000197" />
+    <state width="1323" height="176" key="GridCell.Tab.0.center" timestamp="1578015000197">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="176" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1576813066862" />
-    <state width="1323" height="176" key="GridCell.Tab.0.left" timestamp="1576813066862">
+    <state width="1323" height="176" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1578015000197" />
+    <state width="1323" height="176" key="GridCell.Tab.0.left" timestamp="1578015000197">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="176" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1576813066862" />
-    <state width="1323" height="176" key="GridCell.Tab.0.right" timestamp="1576813066862">
+    <state width="1323" height="176" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1578015000197" />
+    <state width="1323" height="176" key="GridCell.Tab.0.right" timestamp="1578015000197">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="176" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1576813066862" />
+    <state width="1323" height="176" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1578015000197" />
     <state x="162" y="12" key="SettingsEditor" timestamp="1576500143391">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -181,6 +207,7 @@
     <state x="404" y="105" width="585" height="540" key="StructurePopup/0.0.1366.728@0.0.1366.728" timestamp="1576500313060" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FIApprovedDoc62toPDF$FIApprovedDoc62toPDF.coverage" NAME="FIApprovedDoc62toPDF Coverage Results" MODIFIED="1578001906261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FIApprovedDoc62toPDF$FIApprovedDoc62toPDF.coverage" NAME="FIApprovedDoc62toPDF Coverage Results" MODIFIED="1578013715692" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FIApprovedDoc62toPDF$BatchFIApprvSendSMS.coverage" NAME="BatchFIApprvSendSMS Coverage Results" MODIFIED="1578014936219" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

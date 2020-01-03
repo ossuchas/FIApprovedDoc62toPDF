@@ -37,3 +37,8 @@ MAIL_BODY = """<p style="font-family:AP;">เรียนลูกค้า<br>&
 
 # Bitly shorten url
 BITLY_ACCESS_TOKEN = "43280e02fc4a96a4eafa456cc054b49895db00f3"
+
+# SEND SMS
+APP_NAME = "FIAPPROVED"
+SMS_APIURL = "http://192.168.0.40/smsapi/api/SMS/SendSMS"
+SMS_MSG = "บ.เอพีฯ ขอจัดส่งหนังส่งหนังสือรับรองจำนวนเงินที่ชำระค่าซื้ออสังหาริมทรัพย์ สามารถ ดาวน์โหลดเอกสารได้ที่ "

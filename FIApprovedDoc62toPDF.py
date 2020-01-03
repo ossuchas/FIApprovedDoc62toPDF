@@ -105,19 +105,32 @@ def send_email(subject, message, from_email, to_email=None, attachment=None):
 
 
 def getTransferNumber():
+    # strSQL = """
+    # SELECT  DISTINCT TOP 1 TF.TransferNumber
+    # FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
+    # LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+    # LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
+    # WHERE 1=1
+	# AND (TF.NetSalePrice <= 5000000)
+	# AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
+	# AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
+	# AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
+	# --AND a.ProductID = '10096'
+	# ORDER BY TF.TransferNumber
+    # """
     strSQL = """
-    SELECT  DISTINCT TOP 1 TF.TransferNumber
+    SELECT  DISTINCT TOP 5 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
+	LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber AND TN.IsDelete = 0
     WHERE 1=1
 	AND (TF.NetSalePrice <= 5000000)
 	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
 	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
 	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
-	--AND a.ProductID = '10096'
-	ORDER BY TF.TransferNumber
-    """
+	ORDER BY TF.TransferNumber + '-' + TN.ContactID
+        """
 
     myConnDB = ConnectDB()
     result_set = myConnDB.query(strSQL)
@@ -194,13 +207,15 @@ def push2minio(filename: str = None, file_full_path: str = None):
 
 
 def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str = None, url_file: str = None,
-              send_mail_stts: str = None, short_url: str = None):
+              send_mail_stts: str = None, sms_flag: str = None, short_url: str = None,
+              contactid: str = None, mobileno: str = None):
     strSQL = """
     INSERT INTO dbo.crm_log_fiapproveddoc
-    ( productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts, createby, createdate, modifyby, modifydate )
-    VALUES(?, ?, ?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE())
+    ( productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts,  sms_flag,
+    createby, createdate, modifyby, modifydate, contactid, mobileno)
+    VALUES(?, ?, ?, ?, ?, ?, ?, 'batchfi', GETDATE(), 'batchfi', GETDATE(), ?, ?)
         """
-    param = (productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts)
+    param = (productid, unitnumber, transfernumber, url_file, short_url, send_mail_stts, sms_flag, contactid, mobileno)
     myConnDB = ConnectDB()
     myConnDB.exec_sp(strSQL, params=param)
 
@@ -225,19 +240,38 @@ def main():
     db = create_engine('mssql+pyodbc:///?odbc_connect=%s' % params, fast_executemany=True)
 
     for transfer in transfers:
+        tf_val = transfer.split('-')[0]
+        contactid_val = transfer.split('-')[1]
+        # print(tf_val)
+        # print(contactid_val)
+
+        # str_sql = """
+        # SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove
+        # FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
+        # LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+        # WHERE 1=1
+        # AND TF.TransferNumber = '{}'
+        # """.format(transfer)
+
         str_sql = """
-        SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove
+        SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove, TN.Mobile
         FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
         LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+		LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber 
         WHERE 1=1
         AND TF.TransferNumber = '{}'
-        """.format(transfer)
+		AND TN.ContactID = '{}'
+        """.format(tf_val, contactid_val)
 
         df = pd.read_sql(sql=str_sql, con=db)
         product_id = df.iat[0, 0]
         unit_no = df.iat[0, 1]
         transfer_date = df.iat[0, 2]
+        mobile_no = df.iat[0, 3]
         send_mail_stts = 'F'
+        sms_flag = 'N'
+
+        # print(mobile_no)
 
         # print(product_id, unit_no, transfer_date)
         file_name = "{}_{}.pdf".format(product_id, unit_no)
@@ -276,7 +310,10 @@ def main():
         print(short_url)
 
         print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
-        insertlog(product_id, unit_no, transfer, url_file, send_mail_stts, short_url)
+        if send_mail_stts == 'F':
+            sms_flag = 'Y'
+        insertlog(product_id, unit_no, tf_val, url_file, send_mail_stts, sms_flag, short_url,
+                  contactid_val, mobile_no)
 
 
 if __name__ == '__main__':
