@@ -133,15 +133,17 @@ def main():
         mobile = df.iat[0, 0]
         ref1 = df.iat[0, 1]
         url = df.iat[0, 2]
-        print(mobile)
-        print(ref1)
-        print(url)
+        # print(mobile)
+        # print(ref1)
+        # print(url)
 
         # Kai Fix Mobile No.
-        # mobile = '0830824173'  # Kai
-        mobile = '0929246354'  # Tai
+        mobile = '0830824173'  # Kai
+        # mobile = '0929246354'  # Tai
+        # mobile = '0819857023'  # P'Kik
+        # mobile = '0814584803'  # Nam
 
-        sms_msg = f"{SMS_MSG} {url}"
+        sms_msg = f"{SMS_MSG}{url}"
         # print("SMS Message = {}".format(sms_msg))
         print("SMS Message = {}".format(sms_msg))
 
