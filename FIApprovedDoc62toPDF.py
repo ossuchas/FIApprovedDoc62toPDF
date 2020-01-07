@@ -119,7 +119,7 @@ def getTransferNumber():
 	# ORDER BY TF.TransferNumber
     # """
     strSQL = """
-    SELECT  DISTINCT TOP 3 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+    SELECT  DISTINCT TOP 10 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
@@ -146,10 +146,11 @@ def getTransferNumber():
 def getListEmailbyTransferNo(transfernumb: str = None):
 
     strSQL = """
-    SELECT ISNULL(b.EMail, '-') as Email
+    --SELECT ISNULL(b.EMail, '-') as Email
+    SELECT 'suchat_s14102526@gmail.com' as Email
     FROM dbo.ICON_EntForms_TransferOwner a WITH(NOLOCK),
     dbo.ICON_EntForms_Contacts b WITH(NOLOCK)
-    WHERE a.TransferNumber = '{}' 
+    WHERE a.TransferNumber = '{}'
     AND a.IsDelete = 0
     AND a.ContactID = b.ContactID
         """.format(transfernumb)
@@ -258,7 +259,7 @@ def main():
         SELECT  A.ProductId, A.UnitNumber, FORMAT(TF.TransferDateApprove,'yyyyMMdd') AS TransferDateApprove, TN.Mobile
         FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
         LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
-		LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber 
+		LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber
         WHERE 1=1
         AND TF.TransferNumber = '{}'
 		AND TN.ContactID = '{}'
@@ -287,7 +288,8 @@ def main():
         if emaillist:
             print(emaillist)
             send_mail_stts = 'S'
-            receivers = ['suchat_s@apthai.com','wallapa@apthai.com']
+            # receivers = ['suchat_s@apthai.com','wallapa@apthai.com']
+            receivers = emaillist
             subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
             bodyMsg = MAIL_BODY
             sender = MAIL_SENDER
