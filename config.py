@@ -25,15 +25,15 @@ MINIO_BUCKET_NAME = "crmfiapproveddoc"
 
 # Mail Setting
 MAIL_SENDER = "noreply@apthai.com"
-MAIL_SUBJECT = "หนังสือรับรองจำนวนเงินที่ชำระค่าซื้ออสังหาริมทรัพย์"
+MAIL_SUBJECT = "หนังสือประกอบการยื่นยกเว้นภาษี กรณีบ้านหลังแรก"
 MAIL_BODY = """<p style="font-family:AP;">เรียนลูกค้า<br>&nbsp;&nbsp;&nbsp;&nbsp;\
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;อีเมล์ฉบับนี้ออกโดยระบบอัตโนมัติเพื่อทำการจัดส่ง \
-    หนังสือรับรองจำนวนเงินที่ชำระค่าซื้ออสังหาริมทรัพย์ ตามกฎกระทรวง ฉบับที่ ๓๔๘ (พ.ศ. ๒๔๖๒) \
-    ออกตามความในประมวลรัษฎากร ว่าด้วยการยกเว้นรัษฎากร\
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;กลุ่มบริษัทเอพี ขอจัดส่งหนังสือรับรองจำนวนเงินที่ชำระค่าซื้ออสังหาริมทรัพย์ \
+    เพื่อใช้ประกอบการยื่นยกเว้นภาษี กรณีบ้านหลังแรก \
+    <br />ลูกค้าสามารถดาวน์โหลดแบบฟอร์มได้ตามไฟส์แนบ \
     <br /><p style="font-family:AP;"><a href="http://www.rd.go.th/fileadmin/user_upload/kormor/newlaw/dg353.pdf">\
-    ดาวน์โหลดประกาศได้ที่นี่</a></p><br /><br  /> \
-    Best regards,<br /><img src="http://www.apintranet.com/static/media/logo.d9fe4116.png"\
-    alt="ap" width="5%" ><br />AP (Thailand) PCL. and affiliated companies<br /></p>"""
+    ประกาศจากกรมสรรพากร</a></p><br /><br  /> \
+    ขอแสดงความนับถือ<br /><img src="http://www.apintranet.com/static/media/logo.d9fe4116.png"\
+    alt="ap" width="5%" ><br />บมจ.เอพี (ไทยแลนด์) และบริษัทในเครือ<br /></p>"""
 
 # Bitly shorten url
 BITLY_ACCESS_TOKEN = "43280e02fc4a96a4eafa456cc054b49895db00f3"

@@ -119,7 +119,7 @@ def getTransferNumber():
 	# ORDER BY TF.TransferNumber
     # """
     strSQL = """
-    SELECT  DISTINCT TOP 5 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+    SELECT  DISTINCT TOP 3 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
@@ -127,8 +127,9 @@ def getTransferNumber():
     WHERE 1=1
 	AND (TF.NetSalePrice <= 5000000)
 	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
-	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
+	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK))
 	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
+	--AND TF.TransferNumber = '60008CT9196263'
 	ORDER BY TF.TransferNumber + '-' + TN.ContactID
         """
 
@@ -279,14 +280,14 @@ def main():
         rpt2pdf(product_id, unit_no, file_full_path)
 
         # receivers = ['suchat_s@apthai.com', 'jintana_i@apthai.com', 'wallapa@apthai.com']
-        emaillist = getListEmailbyTransferNo(transfer)
+        emaillist = getListEmailbyTransferNo(tf_val)
         # emaillist = getListEmailbyTransferNo('30002CT9173347')
 
         # Check Email valid and sending
         if emaillist:
             print(emaillist)
             send_mail_stts = 'S'
-            receivers = ['suchat_s@apthai.com']
+            receivers = ['suchat_s@apthai.com','wallapa@apthai.com']
             subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
             bodyMsg = MAIL_BODY
             sender = MAIL_SENDER
