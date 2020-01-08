@@ -36,7 +36,9 @@ MAIL_BODY = """<p style="font-family:AP;">เรียนลูกค้า<br>&
     alt="ap" width="5%" ><br />บมจ.เอพี (ไทยแลนด์) และบริษัทในเครือ<br /></p>"""
 
 # Bitly shorten url
-BITLY_ACCESS_TOKEN = "43280e02fc4a96a4eafa456cc054b49895db00f3"
+# BITLY_ACCESS_TOKEN = "43280e02fc4a96a4eafa456cc054b49895db00f3"  # Gmail suchat.s14102526@gmail.com
+BITLY_ACCESS_TOKEN = "82a0df35c581df9c1732293afb1b1dab91797945"  # Gmail ap2020fi01@gmail.com
+
 
 # SEND SMS
 APP_NAME = "FIAPPROVED"
