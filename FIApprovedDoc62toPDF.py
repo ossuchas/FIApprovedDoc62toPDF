@@ -119,11 +119,7 @@ def getTransferNumber():
 	# ORDER BY TF.TransferNumber
     # """
     strSQL = """
-<<<<<<< HEAD
     SELECT  DISTINCT TOP 1 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
-=======
-    SELECT  DISTINCT TOP 100 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
->>>>>>> 2226cdc90da7f8018f81a7ed3ea40b228cc33894
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
