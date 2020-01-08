@@ -119,7 +119,7 @@ def getTransferNumber():
 	# ORDER BY TF.TransferNumber
     # """
     strSQL = """
-    SELECT  DISTINCT TOP 1 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+    SELECT  DISTINCT TOP 100 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
     FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
@@ -289,8 +289,8 @@ def main():
             print(emaillist)
             send_mail_stts = 'S'
             # receivers = ['suchat_s@apthai.com','wallapa@apthai.com']
-            receivers = ['suchat_s@apthai.com']
-            # receivers = emaillist
+            # receivers = ['suchat_s@apthai.com']
+            receivers = emaillist
             subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
             bodyMsg = MAIL_BODY
             sender = MAIL_SENDER
