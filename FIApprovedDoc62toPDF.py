@@ -289,8 +289,8 @@ def main():
             print(emaillist)
             send_mail_stts = 'S'
             # receivers = ['suchat_s@apthai.com','wallapa@apthai.com']
-            # receivers = ['suchat_s@apthai.com']
-            receivers = emaillist
+            receivers = ['suchat_s@apthai.com']
+            # receivers = emaillist
             subject = "{} ({}:{})".format(MAIL_SUBJECT, product_id, unit_no)
             bodyMsg = MAIL_BODY
             sender = MAIL_SENDER
