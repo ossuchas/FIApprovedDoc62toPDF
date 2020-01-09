@@ -68,7 +68,7 @@ class ConnectDB:
 def getListData():
 
     strSQL = """
-    SELECT TOP 1 fidoc_id
+    SELECT TOP 100 fidoc_id
     FROM dbo.crm_log_fiapproveddoc WITH(NOLOCK)
     WHERE 1=1
 	AND sms_flag = 'Y'
@@ -140,7 +140,7 @@ def main():
         # Kai Fix Mobile No.
         # mobile = '0830824173'  # Kai
         # mobile = '0982803061'  # P'Oat
-        mobile = '0929246354'  # Tai
+        # mobile = '0929246354'  # Tai
         # mobile = '0819857023'  # P'Kik
         # mobile = '0814584803'  # Nam
 
