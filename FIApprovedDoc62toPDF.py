@@ -105,33 +105,40 @@ def send_email(subject, message, from_email, to_email=None, attachment=None):
 
 
 def getTransferNumber():
+    # Kai
     # strSQL = """
-    # SELECT  DISTINCT TOP 1 TF.TransferNumber
+    # SELECT  DISTINCT TOP 200 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
     # FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
     # LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
     # LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
+	# LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber AND TN.IsDelete = 0
     # WHERE 1=1
 	# AND (TF.NetSalePrice <= 5000000)
 	# AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
-	# AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI (NOLOCK))
+	# AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK))
 	# AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
-	# --AND a.ProductID = '10096'
-	# ORDER BY TF.TransferNumber
-    # """
+	# --AND TF.TransferNumber = '60008CT9196263'
+	# ORDER BY TF.TransferNumber + '-' + TN.ContactID
+    #     """
+    # Low Rise
     strSQL = """
-    SELECT  DISTINCT TOP 200 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
-    FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
-    LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
-    LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
-	LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber AND TN.IsDelete = 0
-    WHERE 1=1
-	AND (TF.NetSalePrice <= 5000000)
-	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
-	AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK))
-	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
-	--AND TF.TransferNumber = '60008CT9196263'
-	ORDER BY TF.TransferNumber + '-' + TN.ContactID
-        """
+        SELECT  DISTINCT TOP 2 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+        FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
+        LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
+        LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
+    	LEFT OUTER JOIN [ICON_EntForms_TransferOwner] TN WITH (NOLOCK)  ON TN.TransferNumber = TF.TransferNumber AND TN.IsDelete = 0
+    	, dbo.ICON_EntForms_Products p
+        WHERE 1=1
+    	AND (TF.NetSalePrice <= 5000000)
+    	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
+    	--AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK))
+    	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
+    	AND a.ProductID = p.ProductID
+    	AND p.RTPExcusive = 1
+    	AND p.PType IN ('3','4')
+    	--AND TF.TransferNumber = '60008CT9196263'
+    	ORDER BY TF.TransferNumber + '-' + TN.ContactID
+            """
 
     myConnDB = ConnectDB()
     result_set = myConnDB.query(strSQL)
@@ -299,25 +306,30 @@ def main():
 
             # Send Email to Customer
             print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
-            send_email(subject, bodyMsg, sender, receivers, attachedFile)
+            # Kai
+            # send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
         print("##### Push to MinIO {} #####".format(file_name))
         push2minio(file_name, file_full_path)
 
+        # Kai
         print("##### Delete file {} #####".format(file_name))
         delpdffile(file_full_path)
 
         url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
 
-        print("##### Generate Shorten URL {} #####".format(file_name))
-        short_url = generate_shorturl(long_url=url_file, ACCESS_TOKEN=BITLY_ACCESS_TOKEN)
-        print(short_url)
+        short_url = None
+        # Kai
+        # print("##### Generate Shorten URL {} #####".format(file_name))
+        # short_url = generate_shorturl(long_url=url_file, ACCESS_TOKEN=BITLY_ACCESS_TOKEN)
+        # print(short_url)
 
         print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
         if send_mail_stts == 'F':
             sms_flag = 'Y'
-        insertlog(product_id, unit_no, tf_val, url_file, send_mail_stts, sms_flag, short_url,
-                  contactid_val, mobile_no)
+        # # Kai
+        # insertlog(product_id, unit_no, tf_val, url_file, send_mail_stts, sms_flag, short_url,
+        #           contactid_val, mobile_no)
 
 
 if __name__ == '__main__':
