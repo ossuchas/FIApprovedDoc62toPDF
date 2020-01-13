@@ -122,7 +122,7 @@ def getTransferNumber():
     #     """
     # Low Rise
     strSQL = """
-        SELECT  DISTINCT TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+        SELECT  DISTINCT TOP 2 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
         FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
         LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
         LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
@@ -132,6 +132,7 @@ def getTransferNumber():
     	AND (TF.NetSalePrice <= 5000000)
     	AND (dbo.fn_ClearTime(TF.TransferDateApprove) BETWEEN '2019-04-30' AND '2019-12-31')
     	--AND TF.TransferNumber NOT IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK))
+    	AND TF.TransferNumber IN (SELECT FI.transfernumber FROM dbo.crm_log_fiapproveddoc FI WITH(NOLOCK) WHERE FI.send_mail_stts = 'S')
     	AND dbo.fn_ChckNationalityTHFE( AO.ContactID) = 'T'
     	AND a.ProductID = p.ProductID
     	AND p.RTPExcusive = 1
@@ -310,7 +311,7 @@ def main():
             # Send Email to Customer
             print("##### Send Mail File {}_{}.pdf #####".format(product_id, unit_no))
             # Kai
-            # send_email(subject, bodyMsg, sender, receivers, attachedFile)
+            send_email(subject, bodyMsg, sender, receivers, attachedFile)
 
         print("##### Push to MinIO {} #####".format(file_name))
         push2minio(file_name, file_full_path)
