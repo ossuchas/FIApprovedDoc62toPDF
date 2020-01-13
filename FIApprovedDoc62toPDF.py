@@ -233,6 +233,23 @@ def insertlog(productid: str = None, unitnumber: str = None, transfernumber: str
     myConnDB.exec_sp(strSQL, params=param)
 
 
+def updatelog(productid: str = None, unitnumber: str = None,
+              transfernumber: str = None, contactid: str = None):
+    strSQL = """
+    UPDATE dbo.crm_log_fiapproveddoc
+    SET modifydate = GETDATE(),
+        modifyby = 'batch2'
+    WHERE productid = ?
+    AND unitnumber = ?
+    AND transfernumber = ?
+    AND contactid = ?
+    """
+
+    param = (productid, unitnumber, transfernumber, contactid)
+    myConnDB = ConnectDB()
+    myConnDB.exec_sp(strSQL, params=param)
+
+
 def delpdffile(file_full_path: str = None):
     remove(file_full_path)
 
@@ -321,7 +338,7 @@ def main():
         delpdffile(file_full_path)
 
         url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
-        print(url_file)
+        # print(url_file)
 
         short_url = None
         # Kai
@@ -329,12 +346,16 @@ def main():
         # short_url = generate_shorturl(long_url=url_file, ACCESS_TOKEN=BITLY_ACCESS_TOKEN)
         # print(short_url)
 
-        print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
-        if send_mail_stts == 'F':
-            sms_flag = 'Y'
         # # Kai
+        # print("##### Insert Log FI {} {} #####".format(product_id, unit_no))
+        # if send_mail_stts == 'F':
+        #     sms_flag = 'Y'
         # insertlog(product_id, unit_no, tf_val, url_file, send_mail_stts, sms_flag, short_url,
         #           contactid_val, mobile_no)
+
+        # # Kai
+        print("##### Update Log FI {} {} {} {} #####".format(product_id, unit_no, tf_val, contactid_val))
+        updatelog(product_id, unit_no, tf_val, contactid_val)
 
 
 if __name__ == '__main__':
