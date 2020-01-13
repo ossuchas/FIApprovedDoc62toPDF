@@ -122,7 +122,7 @@ def getTransferNumber():
     #     """
     # Low Rise
     strSQL = """
-        SELECT  DISTINCT TOP 2 TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
+        SELECT  DISTINCT TF.TransferNumber + '-' + TN.ContactID AS TransferNumber
         FROM  [ICON_EntForms_Transfer] TF WITH (NOLOCK)
         LEFT OUTER JOIN [ICON_EntForms_Agreement] A WITH (NOLOCK)  ON A.ContractNumber = TF.ContractNumber
         LEFT OUTER JOIN [ICON_EntForms_AgreementOwner] AO WITH (NOLOCK)  ON AO.ContractNumber = A.ContractNumber AND AO.Header = 1
@@ -136,6 +136,9 @@ def getTransferNumber():
     	AND a.ProductID = p.ProductID
     	AND p.RTPExcusive = 1
     	AND p.PType IN ('3','4')
+        --AND p.ProductID = '40017'
+        --AND A.UnitNumber = 'N12AB11'
+    	--AND p.PType IN ('1','2')
     	--AND TF.TransferNumber = '60008CT9196263'
     	ORDER BY TF.TransferNumber + '-' + TN.ContactID
             """
@@ -317,6 +320,7 @@ def main():
         delpdffile(file_full_path)
 
         url_file = "https://happyrefund.apthai.com/datashare/crmfiapproveddoc/{}".format(file_name)
+        print(url_file)
 
         short_url = None
         # Kai
