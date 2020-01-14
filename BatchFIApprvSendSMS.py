@@ -68,7 +68,7 @@ class ConnectDB:
 def getListData():
 
     strSQL = """
-    SELECT TOP 100 fidoc_id
+    SELECT fidoc_id
     FROM dbo.crm_log_fiapproveddoc WITH(NOLOCK)
     WHERE 1=1
 	AND sms_flag = 'Y'
